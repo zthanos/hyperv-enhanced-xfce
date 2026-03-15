@@ -1,0 +1,32 @@
+# Hyper-V Enhanced Session for Ubuntu (XRDP + XFCE)
+
+Reliable Hyper-V Enhanced Session setup for Ubuntu virtual machines using:
+
+- XRDP
+- XFCE desktop
+- Hyper-V vsock transport
+- Dynamic resolution
+- Clipboard support
+
+## Why this project exists
+
+GNOME + XRDP often fails inside Hyper-V Enhanced Session with errors such as:
+
+Unit gnome-session-x11@ubuntu.target not found
+
+This repository provides a stable XFCE-based setup that works reliably with Hyper-V Enhanced Session.
+
+---
+
+## Requirements
+
+Windows host:
+
+- Windows 11 / Windows 10
+- Hyper-V enabled
+- Enhanced Session Mode enabled
+
+Check:
+
+```powershell
+Get-VMHost | fl EnableEnhancedSessionMode

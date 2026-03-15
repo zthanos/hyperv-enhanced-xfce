@@ -54,7 +54,7 @@ fi
 
 echo
 echo "== Disabling gnome-remote-desktop if present =="
-runuser -l "${TARGET_USER}" -c 'systemctl --user disable --now gnome-remote-desktop.service' || true
+runuser -l "${TARGET_USER}" -c 'systemctl --user disable --now gnome-remote-desktop.service' >/dev/null 2>&1 || true
 
 echo
 echo "== Writing XRDP session files for user =="
@@ -73,13 +73,13 @@ EOF
 
 rm -f "${USER_HOME}/.xrdp-startwm.sh" || true
 chown "${TARGET_USER}:${TARGET_USER}" "${USER_HOME}/.xsession" "${USER_HOME}/.xsessionrc"
-chmod 755 "${USER_HOME}/.xsession"
+chmod 744 "${USER_HOME}/.xsession"
 chmod 644 "${USER_HOME}/.xsessionrc"
 
 echo
 echo "== Tweaking startwm.sh for XFCE-friendly startup =="
 STARTWM="/etc/xrdp/startwm.sh"
-cp "${STARTWM}" "${STARTWM}.bak.$(date +%Y%m%d%H%M%S)}" 2>/dev/null || cp "${STARTWM}" "${STARTWM}.bak.$(date +%Y%m%d%H%M%S)"
+cp "${STARTWM}" "${STARTWM}.bak.$(date +%Y%m%d%H%M%S)" || true
 
 cat > "${STARTWM}" <<'EOF'
 #!/bin/sh
@@ -110,16 +110,16 @@ cp "${XRDP_INI}" "${XRDP_INI}.bak.$(date +%Y%m%d%H%M%S)"
 
 python3 <<'PY'
 from pathlib import Path
+import re
+
 p = Path("/etc/xrdp/xrdp.ini")
 text = p.read_text()
 
 def replace_or_add(text, key, value):
-    import re
     pattern = rf'^\s*{re.escape(key)}=.*$'
     repl = f'{key}={value}'
     if re.search(pattern, text, flags=re.M):
         return re.sub(pattern, repl, text, flags=re.M)
-    # add inside [Globals] if not present
     marker = "[Globals]"
     idx = text.find(marker)
     if idx >= 0:
@@ -175,7 +175,7 @@ echo
 systemctl --no-pager --full status xrdp-sesman | sed -n '1,20p' || true
 echo
 echo "-- xrdp.ini relevant lines --"
-grep -E '^(port|use_vsock|security_layer|crypt_level)=' /etc/xrdp/xrdp.ini || true
+grep -E '^\s*(port|use_vsock|security_layer|crypt_level)=' /etc/xrdp/xrdp.ini || true
 echo
 echo "-- user session file --"
 sed -n '1,20p' "${USER_HOME}/.xsession" || true
@@ -192,11 +192,3 @@ echo "3. Reconnect from Hyper-V Manager"
 echo "4. Login with:"
 echo "   user: ${TARGET_USER}"
 echo "   session: Xorg"
-
-echo
-echo "Setup completed successfully."
-echo
-echo "Reboot the VM:"
-echo "sudo reboot"
-echo
-echo "Then reconnect using Hyper-V Enhanced Session."
