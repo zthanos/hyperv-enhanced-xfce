@@ -34,7 +34,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   xfce4-goodies \
   dbus-x11 \
   x11-xserver-utils \
-  policykit-1 \
   light-locker
 
 echo
@@ -193,3 +192,11 @@ echo "3. Reconnect from Hyper-V Manager"
 echo "4. Login with:"
 echo "   user: ${TARGET_USER}"
 echo "   session: Xorg"
+
+echo
+echo "Setup completed successfully."
+echo
+echo "Reboot the VM:"
+echo "sudo reboot"
+echo
+echo "Then reconnect using Hyper-V Enhanced Session."
